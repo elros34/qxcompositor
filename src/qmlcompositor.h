@@ -21,7 +21,7 @@ class QmlCompositor : public QObject, public QWaylandQuickCompositor
     Q_PROPERTY(QWaylandQuickSurface* fullscreenSurface READ fullscreenSurface WRITE setFullscreenSurface NOTIFY fullscreenSurfaceChanged)
 
 public:
-    QmlCompositor(QQuickView *window);
+    QmlCompositor(QQuickView *quickView);
 
     QWaylandQuickSurface *fullscreenSurface() const;
 

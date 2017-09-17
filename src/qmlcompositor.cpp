@@ -1,13 +1,13 @@
 #include "qmlcompositor.h"
 #include <QWaylandSurfaceInterface>
 
-QmlCompositor::QmlCompositor(QQuickView *window)
-    : QObject(window)
-    , QWaylandQuickCompositor(window, 0, DefaultExtensions | SubSurfaceExtension)
+QmlCompositor::QmlCompositor(QQuickView *quickView)
+    : QObject(quickView)
+    , QWaylandQuickCompositor(quickView, 0, DefaultExtensions | SubSurfaceExtension)
     , m_fullscreenSurface(0)
 {
-    setScreenOrientation(Qt::LandscapeOrientation);
-    //setOutputGeometry(QRect(0,0, 960, 540));
+    QSize size = window()->size();
+    setOutputGeometry(QRect(0,0, size.height(), size.width()));
     addDefaultShell();
 }
 
