@@ -50,5 +50,7 @@ ApplicationWindow {
     //allowedOrientations: defaultAllowedOrientations
     allowedOrientations: (Orientation.Landscape | Orientation.LandscapeInverted) & defaultAllowedOrientations
     _defaultPageOrientations: allowedOrientations
+    
+    property bool preventOrientationsOverride: true
 
 }

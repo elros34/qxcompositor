@@ -8,6 +8,9 @@
 # * date Author's Name <author's email> version-release
 # - Summary of changes
 
+* Sun Apr 13 2014 Jack Tar <jack.tar@example.com> 0.0.3-1
+- Prevent orientations override
+
 * Sun Apr 13 2014 Jack Tar <jack.tar@example.com> 0.0.2-1
 - Fix wrong xwayland window size
 
