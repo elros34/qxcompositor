@@ -43,6 +43,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Window 2.0
 import QtCompositor 1.0
+import QXCompositor 1.0
 
 Item {
     id: container
@@ -52,6 +53,11 @@ Item {
 
     Component.onCompleted: {
         compositor.fullscreenSurface = child.surface
+
+        if (sshUserOption && sshPortOption) {
+            console.log("create xclipboard")
+            xclipboard.createObject(container)
+        }
     }
 
     visible: true
@@ -61,8 +67,14 @@ Item {
 
     property variant child: null // qwaylandsurfaceitem
 
+    onChildChanged: {
+        if (child)
+            delayTimer.start()
+    }
+
     Connections {
         target: container.child ? container.child.surface : null
+
         onUnmapped: {
             container.parent.removeWindow(container)
         }
@@ -71,6 +83,23 @@ Item {
         target: container.child ? container.child : null
         onSurfaceDestroyed: {
             container.parent.removeWindow(container)
+        }
+    }
+
+    property bool delayed: false
+    Timer { // FIXME
+        id: delayTimer
+        interval: 2000
+        onTriggered: delayed = true
+    }
+
+    Component {
+        id: xclipboard
+        XClipboard {
+            xwaylandWindowReady: delayed  && container.child !== null
+            compositorWindowActive: appWindow.applicationActive
+            sshUser: sshUserOption
+            sshPort: sshPortOption
         }
     }
 }

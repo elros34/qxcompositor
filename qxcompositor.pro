@@ -30,7 +30,8 @@ QT += compositor
 
 SOURCES += \
     src/main.cpp \
-    src/qmlcompositor.cpp
+    src/qmlcompositor.cpp \
+    src/xclipboard.cpp
 
 OTHER_FILES += \
     qml/cover/CoverPage.qml \
@@ -44,5 +45,6 @@ DISTFILES += \
     qml/qxcompositor.qml
 
 HEADERS += \
-    src/qmlcompositor.h
+    src/qmlcompositor.h \
+    src/xclipboard.h
 

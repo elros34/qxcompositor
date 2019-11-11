@@ -1,13 +1,14 @@
 #include "qmlcompositor.h"
 #include <QWaylandSurfaceInterface>
+#include <QQuickView>
 
-QmlCompositor::QmlCompositor(QQuickView *quickView)
+QmlCompositor::QmlCompositor(QQuickView *quickView, const char *socketName)
     : QObject(quickView)
-    , QWaylandQuickCompositor(quickView, 0, DefaultExtensions | SubSurfaceExtension)
+    , QWaylandQuickCompositor(quickView, socketName, DefaultExtensions | SubSurfaceExtension)
     , m_fullscreenSurface(0)
 {
     QSize size = window()->size();
-    setOutputGeometry(QRect(0,0, size.height(), size.width()));
+    setSize(size.height(), size.width());
     addDefaultShell();
 }
 

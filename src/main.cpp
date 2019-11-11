@@ -40,36 +40,49 @@
 ****************************************************************************/
 
 #include <QGuiApplication>
-
 #include <QQmlContext>
-
-#include <QQuickItem>
 #include <QQuickView>
-
+#include <QCommandLineParser>
 #include <sailfishapp.h>
 
 #include "qmlcompositor.h"
-
+#include "xclipboard.h"
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
-    QGuiApplication *app = SailfishApp::application(argc, argv);
+    QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
 
-    QQuickView *view = SailfishApp::createView();
+    QCommandLineParser parser;
+    QCommandLineOption displayOption({"d", "display", "wayland-socket-name"},
+                                     "Wayland display socket",
+                                     "socket", "../../display/wayland-1");
+    QCommandLineOption sshUserOption({"u", "user"},
+                                     "ssh user used for clipboard sync", "user");
+    QCommandLineOption sshPortOption({"p", "port"},
+                                     "ssh port used for clipboard sync", "port");
+    parser.addOption(displayOption);
+    parser.addOption(sshUserOption);
+    parser.addOption(sshPortOption);
+    parser.addHelpOption();
+    parser.process(*app);
+
+    qmlRegisterType<XClipboard>("QXCompositor", 1, 0, "XClipboard");
+
+    QScopedPointer<QQuickView> view(SailfishApp::createView());
+    view->rootContext()->setContextProperty("sshUserOption", parser.value(sshUserOption));
+    view->rootContext()->setContextProperty("sshPortOption", parser.value(sshPortOption));
     view->setSource(SailfishApp::pathTo("qml/qxcompositor.qml"));
     view->setColor(Qt::black);
-
-    QmlCompositor compositor(view);
-    QObject::connect(view, SIGNAL(afterRendering()), &compositor, SLOT(sendCallbacks()));
-
+    QmlCompositor compositor(view.data(), qPrintable(parser.value(displayOption)));
+    QObject::connect(view.data(), SIGNAL(afterRendering()), &compositor, SLOT(sendCallbacks()));
     view->rootContext()->setContextProperty("compositor", &compositor);
-    view->show();
 
+    view->create();
     QObject *firstPage = view->rootObject()->findChild<QObject*>("firstPage");
-    qDebug() << firstPage;
-
     QObject::connect(&compositor, SIGNAL(windowAdded(QVariant)), firstPage, SLOT(windowAdded(QVariant)));
     QObject::connect(&compositor, SIGNAL(windowResized(QVariant)), firstPage, SLOT(windowResized(QVariant)));
+
+    view->show();
 
     return app->exec();
 }

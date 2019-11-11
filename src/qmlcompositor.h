@@ -2,26 +2,16 @@
 #define QMLCOMPOSITOR_H
 
 #include <QObject>
-#include "qwaylandquickcompositor.h"
-#include "qwaylandquicksurface.h"
-
-#include <QtCompositor/qwaylandsurfaceitem.h>
 #include <QtCompositor>
 
-#include <QQmlContext>
-
-#include <QQuickItem>
-#include <QQuickView>
-
-#include <QtCompositor/QWaylandSurfaceResizeOp>
-
+class QQuickView;
 class QmlCompositor : public QObject, public QWaylandQuickCompositor
 {
     Q_OBJECT
     Q_PROPERTY(QWaylandQuickSurface* fullscreenSurface READ fullscreenSurface WRITE setFullscreenSurface NOTIFY fullscreenSurfaceChanged)
 
 public:
-    QmlCompositor(QQuickView *quickView);
+    QmlCompositor(QQuickView *quickView, const char *socketName = 0);
 
     QWaylandQuickSurface *fullscreenSurface() const;
 

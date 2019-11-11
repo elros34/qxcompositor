@@ -18,7 +18,7 @@ Page {
 
     function windowAdded(window) {
         var windowContainerComponent = Qt.createComponent("../compositor/XWaylandContainer.qml");
-        if (windowContainerComponent.status != Component.Ready) {
+        if (windowContainerComponent.status !== Component.Ready) {
             console.warn("Error loading WindowContainer.qml: " +  windowContainerComponent.errorString());
             return;
         }
