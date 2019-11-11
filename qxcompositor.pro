@@ -39,7 +39,6 @@ OTHER_FILES += \
 
 DISTFILES += \
     qml/compositor/XWaylandContainer.qml \
-    rpm/qxcompositor.yaml \
     rpm/qxcompositor.spec \
     rpm/qxcompositor.changes.in \
     qml/qxcompositor.qml
