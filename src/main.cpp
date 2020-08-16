@@ -47,6 +47,7 @@
 
 #include "qmlcompositor.h"
 #include "xclipboard.h"
+#include "mousetracker.h"
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
@@ -63,20 +64,22 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     QCommandLineOption screenOrientationOption({"o", "orientation"},
                                          "screen orientation to use, default landscape",
                                          "orientation", "landscape");
-    parser.addOption(displayOption);
-    parser.addOption(sshUserOption);
-    parser.addOption(sshPortOption);
-    parser.addOption(screenOrientationOption);
+    QCommandLineOption cursorOption({"c", "cursor"}, "show cursor if mouse is connected");
+
+    parser.addOptions({displayOption, sshUserOption, sshPortOption,
+                       screenOrientationOption, cursorOption});
     parser.addHelpOption();
     parser.process(*app);
 
     qmlRegisterType<XClipboard>("QXCompositor", 1, 0, "XClipboard");
+    qmlRegisterType<MouseTracker>("QXCompositor", 1, 0, "MouseTracker");
 
     QString screenOrientation = parser.value(screenOrientationOption);
     QScopedPointer<QQuickView> view(SailfishApp::createView());
     view->rootContext()->setContextProperty("sshUserOption", parser.value(sshUserOption));
     view->rootContext()->setContextProperty("sshPortOption", parser.value(sshPortOption));
     view->rootContext()->setContextProperty("screenOrientationOption", screenOrientation);
+    view->rootContext()->setContextProperty("cursorOption", parser.isSet(cursorOption));
     view->setSource(SailfishApp::pathTo("qml/qxcompositor.qml"));
     view->setColor(Qt::black);
     QmlCompositor compositor(view.data(), qPrintable(parser.value(displayOption)), screenOrientation);

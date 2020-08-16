@@ -39,12 +39,16 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.6
 import Sailfish.Silica 1.0
+import QXCompositor 1.0
 
 Page {
     id: root
     objectName: "firstPage"
+
+    property variant selectedWindow: null
+    property bool hasFullscreenWindow: typeof compositor != "undefined" && compositor.fullscreenSurface !== null
 
     Label {
         id: hintLabel
@@ -53,9 +57,30 @@ Page {
         font.pixelSize: Theme.fontSizeLarge
     }
 
-    property variant selectedWindow: null
-    property bool hasFullscreenWindow: typeof compositor != "undefined" && compositor.fullscreenSurface !== null
+    MouseTracker {
+        id: mouseTracker
+        orientation: root.orientation
+    }
 
+    Connections {
+        target: appWindow
+        onApplicationActiveChanged: {
+            if (!mouseTracker.target && appWindow.applicationActive)
+                mouseTracker.start()
+        }
+    }
+
+    Rectangle {
+        width: 20 * Theme.pixelRatio
+        height: width
+        radius: width/2
+        x: mouseTracker.mouseX - width/2
+        y: mouseTracker.mouseY - height/2
+        z: 10
+        visible: /*cursorOption &&*/ appWindow.applicationActive && mouseTracker.mouseActive
+        opacity: 0.7
+        border.color: "black"
+    }
 
     function windowAdded(window) {
         var windowContainerComponent = Qt.createComponent("../compositor/XWaylandContainer.qml");

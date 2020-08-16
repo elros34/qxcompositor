@@ -30,6 +30,7 @@ QT += compositor
 
 SOURCES += \
     src/main.cpp \
+    src/mousetracker.cpp \
     src/qmlcompositor.cpp \
     src/xclipboard.cpp
 
@@ -44,6 +45,7 @@ DISTFILES += \
     qml/qxcompositor.qml
 
 HEADERS += \
+    src/mousetracker.h \
     src/qmlcompositor.h \
     src/xclipboard.h
 
