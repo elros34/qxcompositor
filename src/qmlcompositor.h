@@ -11,7 +11,8 @@ class QmlCompositor : public QObject, public QWaylandQuickCompositor
     Q_PROPERTY(QWaylandQuickSurface* fullscreenSurface READ fullscreenSurface WRITE setFullscreenSurface NOTIFY fullscreenSurfaceChanged)
 
 public:
-    QmlCompositor(QQuickView *quickView, const char *socketName = 0);
+    QmlCompositor(QQuickView *quickView, const char *socketName = 0,
+                  const QString &screenOrientationOption = "landscape");
 
     QWaylandQuickSurface *fullscreenSurface() const;
 

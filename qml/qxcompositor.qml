@@ -47,7 +47,12 @@ ApplicationWindow {
 
     initialPage: Component { FirstPage {}}
     cover: undefined
-    allowedOrientations: (Orientation.Landscape | Orientation.LandscapeInverted) & defaultAllowedOrientations
+    allowedOrientations: {
+        if (screenOrientationOption === "landscape")
+            return (Orientation.Landscape | Orientation.LandscapeInverted) & defaultAllowedOrientations
+        else
+            return (Orientation.Portrait | Orientation.PortraitInverted) & defaultAllowedOrientations
+    }
     _defaultPageOrientations: allowedOrientations
     
     property bool preventOrientationsOverride: true

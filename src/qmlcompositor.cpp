@@ -43,13 +43,17 @@
 #include <QWaylandSurfaceInterface>
 #include <QQuickView>
 
-QmlCompositor::QmlCompositor(QQuickView *quickView, const char *socketName)
+QmlCompositor::QmlCompositor(QQuickView *quickView, const char *socketName,
+                             const QString &screenOrientationOption)
     : QObject(quickView)
     , QWaylandQuickCompositor(quickView, socketName, DefaultExtensions | SubSurfaceExtension)
-    , m_fullscreenSurface(0)
+    , m_fullscreenSurface(nullptr)
 {
     QSize size = window()->size();
-    setSize(size.height(), size.width());
+    if (screenOrientationOption == "landscape")
+        setSize(size.height(), size.width());
+    else
+        setSize(size.width(), size.height());
     addDefaultShell();
 }
 
@@ -90,7 +94,7 @@ void QmlCompositor::surfaceUnmapped()
 {
     QWaylandQuickSurface *surface = qobject_cast<QWaylandQuickSurface *>(sender());
     if (surface == m_fullscreenSurface)
-        m_fullscreenSurface = 0;
+        m_fullscreenSurface = nullptr;
     emit windowDestroyed(QVariant::fromValue(surface));
 }
 
@@ -98,7 +102,7 @@ void QmlCompositor::surfaceDestroyed(QObject *object)
 {
     QWaylandQuickSurface *surface = static_cast<QWaylandQuickSurface *>(object);
     if (surface == m_fullscreenSurface)
-        m_fullscreenSurface = 0;
+        m_fullscreenSurface = nullptr;
     emit windowDestroyed(QVariant::fromValue(surface));
 }
 
