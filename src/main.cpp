@@ -60,20 +60,26 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
                                      "ssh user used for clipboard sync", "user");
     QCommandLineOption sshPortOption({"p", "port"},
                                      "ssh port used for clipboard sync", "port");
+    QCommandLineOption screenOrientationOption({"o", "orientation"},
+                                         "screen orientation to use, default landscape",
+                                         "orientation", "landscape");
     parser.addOption(displayOption);
     parser.addOption(sshUserOption);
     parser.addOption(sshPortOption);
+    parser.addOption(screenOrientationOption);
     parser.addHelpOption();
     parser.process(*app);
 
     qmlRegisterType<XClipboard>("QXCompositor", 1, 0, "XClipboard");
 
+    QString screenOrientation = parser.value(screenOrientationOption);
     QScopedPointer<QQuickView> view(SailfishApp::createView());
     view->rootContext()->setContextProperty("sshUserOption", parser.value(sshUserOption));
     view->rootContext()->setContextProperty("sshPortOption", parser.value(sshPortOption));
+    view->rootContext()->setContextProperty("screenOrientationOption", screenOrientation);
     view->setSource(SailfishApp::pathTo("qml/qxcompositor.qml"));
     view->setColor(Qt::black);
-    QmlCompositor compositor(view.data(), qPrintable(parser.value(displayOption)));
+    QmlCompositor compositor(view.data(), qPrintable(parser.value(displayOption)), screenOrientation);
     QObject::connect(view.data(), SIGNAL(afterRendering()), &compositor, SLOT(sendCallbacks()));
     view->rootContext()->setContextProperty("compositor", &compositor);
 
