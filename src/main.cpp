@@ -44,6 +44,7 @@
 #include <QQuickView>
 #include <QCommandLineParser>
 #include <sailfishapp.h>
+#include <unistd.h>
 
 #include "qmlcompositor.h"
 #include "xclipboard.h"
@@ -61,34 +62,52 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     QCommandLineOption sshPortOption({"p", "port"},
                                      "ssh port used for clipboard sync", "port");
     QCommandLineOption screenOrientationOption({"o", "orientation"},
-                                         "screen orientation to use, default landscape",
+                                         "screen orientation to use: portrait, landscape, auto. Default is landscape",
                                          "orientation", "landscape");
+    QCommandLineOption xwaylandQuirksOption({"x", "xwaylandquirks"},
+                                            "Quirks for Xwayland root window mode");
+    QCommandLineOption forkOption({"f", "fork"},
+                                  "Fork when wayland socket is ready to use");
     parser.addOption(displayOption);
     parser.addOption(sshUserOption);
     parser.addOption(sshPortOption);
     parser.addOption(screenOrientationOption);
+    parser.addOption(xwaylandQuirksOption);
+    parser.addOption(forkOption);
     parser.addHelpOption();
     parser.process(*app);
 
     qmlRegisterType<XClipboard>("QXCompositor", 1, 0, "XClipboard");
 
     QString screenOrientation = parser.value(screenOrientationOption);
-    QScopedPointer<QQuickView> view(SailfishApp::createView());
-    view->rootContext()->setContextProperty("sshUserOption", parser.value(sshUserOption));
-    view->rootContext()->setContextProperty("sshPortOption", parser.value(sshPortOption));
-    view->rootContext()->setContextProperty("screenOrientationOption", screenOrientation);
-    view->setSource(SailfishApp::pathTo("qml/qxcompositor.qml"));
-    view->setColor(Qt::black);
-    QmlCompositor compositor(view.data(), qPrintable(parser.value(displayOption)), screenOrientation);
-    QObject::connect(view.data(), SIGNAL(afterRendering()), &compositor, SLOT(sendCallbacks()));
-    view->rootContext()->setContextProperty("compositor", &compositor);
+    if (screenOrientation.isEmpty())
+        screenOrientation = "landscape";
 
-    view->create();
-    QObject *firstPage = view->rootObject()->findChild<QObject*>("firstPage");
-    QObject::connect(&compositor, SIGNAL(windowAdded(QVariant)), firstPage, SLOT(windowAdded(QVariant)));
-    QObject::connect(&compositor, SIGNAL(windowResized(QVariant)), firstPage, SLOT(windowResized(QVariant)));
+    QLoggingCategory::setFilterRules("qxcompositor.debug=false\n"
+                                     "qxcompositor.orientation.debug=false\n"
+                                     "qml=false");
 
-    view->show();
+    QmlCompositor compositor(app.data(),
+                             qPrintable(parser.value(displayOption)),
+                             screenOrientation,
+                             parser.value(sshUserOption),
+                             parser.value(sshPortOption),
+                             parser.isSet(xwaylandQuirksOption));
+
+    if (parser.isSet(forkOption)) {
+        qDebug() << "forking";
+        int pid = fork();
+        if (pid < 0) {
+            qDebug() << "Cannot fork: " << strerror(errno);
+            exit(1);
+        }
+        if (pid == 0) {
+            qDebug() << "in child";
+        } else {
+            qDebug() << "in parent, child pid: " << pid;
+            exit(0);
+        }
+    }
 
     return app->exec();
 }

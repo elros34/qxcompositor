@@ -9,10 +9,10 @@ class QTimer;
 class XClipboard : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(bool xwaylandWindowReady WRITE setXwaylandWindowReady)
-    Q_PROPERTY(bool compositorWindowActive WRITE setCompositorWindowActive)
-    Q_PROPERTY(QString sshUser WRITE setSshUser)
-    Q_PROPERTY(QString sshPort WRITE setSshPort)
+    Q_PROPERTY(bool xwaylandWindowReady MEMBER mXwaylandWindowReady WRITE setXwaylandWindowReady)
+    Q_PROPERTY(bool compositorWindowActive MEMBER mCompositorWindowActive WRITE setCompositorWindowActive)
+    Q_PROPERTY(QString sshUser MEMBER mSshUser WRITE setSshUser)
+    Q_PROPERTY(QString sshPort MEMBER mSshPort WRITE setSshPort)
 public:
     explicit XClipboard(QObject *parent = nullptr);
     ~XClipboard();

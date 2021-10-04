@@ -18,10 +18,9 @@ DEFINES += QT_COMPOSITOR_QUICK
 
 LIBS += -L ../../lib
 
-QT += quick qml
-QT += quick-private
+QT += quick qml compositor
 
-QT += compositor
+PKGCONFIG += mlite5
 
 #  if you want to compile QtCompositor as part of the application
 #  instead of linking to it, remove the QT += compositor and uncomment
@@ -31,6 +30,7 @@ QT += compositor
 SOURCES += \
     src/main.cpp \
     src/qmlcompositor.cpp \
+    src/waylandview.cpp \
     src/xclipboard.cpp
 
 OTHER_FILES += \
@@ -38,12 +38,13 @@ OTHER_FILES += \
     qml/pages/FirstPage.qml \
 
 DISTFILES += \
-    qml/compositor/XWaylandContainer.qml \
+    qml/compositor/WindowContainer.qml \
     rpm/qxcompositor.spec \
     rpm/qxcompositor.changes.in \
     qml/qxcompositor.qml
 
 HEADERS += \
     src/qmlcompositor.h \
+    src/waylandview.h \
     src/xclipboard.h
 

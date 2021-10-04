@@ -39,8 +39,11 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.6
 import Sailfish.Silica 1.0
+import QtCompositor 1.0
+import QXCompositor 1.0
+import "../compositor"
 
 Page {
     id: root
@@ -49,43 +52,75 @@ Page {
     Label {
         id: hintLabel
         anchors.centerIn: parent
-        text: "No Xwayland window"
         font.pixelSize: Theme.fontSizeLarge
+        width: parent.width - Theme.paddingLarge
+        wrapMode: Text.Wrap
+        horizontalAlignment: Text.AlignHCenter
+        text: "Waiting for window.."
     }
 
     property variant selectedWindow: null
     property bool hasFullscreenWindow: typeof compositor != "undefined" && compositor.fullscreenSurface !== null
 
+    Component {
+        id: windowContainerComponent
+        WindowContainer {}
+    }
 
-    function windowAdded(window) {
-        var windowContainerComponent = Qt.createComponent("../compositor/XWaylandContainer.qml");
-        if (windowContainerComponent.status !== Component.Ready) {
-            console.warn("Error loading WindowContainer.qml: " +  windowContainerComponent.errorString());
-            return;
-        }
+    property WindowContainer windowContainer: null
 
-        var windowContainer = windowContainerComponent.createObject(root, {
-                                                                    "child": compositor.item(window)
-                                                                    });
+    function windowAdded(quickSurface, isXwaylandWindow) {
+        console.log("windowAdded", quickSurface)
+        console.log("isXwaylandWindow", isXwaylandWindow)
+        windowContainer = windowContainerComponent.createObject(root, {
+                                                                    "surfaceItem": compositor.getSurfaceItem(quickSurface),
+                                                                    "isXwaylandWindow": isXwaylandWindow
+                                                                });
         windowContainer.objectName = "windowContainer"
-        windowContainer.child.resizeSurfaceToItem = true
-        windowContainer.child.parent = windowContainer;
-        windowContainer.child.touchEventsEnabled = true;
-
-        hintLabel.visible = false
-
-        root.selectedWindow = windowContainer.child
-        windowContainer.child.takeFocus()
+        windowContainer.fillScreen()
+        windowContainer.surfaceItem.parent = windowContainer
+        root.selectedWindow = windowContainer.surfaceItem
+        windowContainer.surfaceItem.takeFocus()
+    }
+    function subWindowAdded(quickSurface) {
+        console.log("subWindowAdded", quickSurface)
+        var subSurfaceItem = compositor.getSurfaceItem(quickSurface)
+        windowContainer.addSubSurfaceItem(subSurfaceItem)
     }
 
-    function windowResized(window) {
-        window.width = window.surface.size.width;
-        window.height = window.surface.size.height;
+    function windowResized(quickSurface) {
+        console.log("windowResized", quickSurface)
+        quickSurface.width = quickSurface.surface.size.width;// ?
+        quickSurface.height = quickSurface.surface.size.height;
     }
 
-    function removeWindow(window) {
-        window.destroy();
-        hintLabel.visible = true
+    function windowDestroyed(quickSurface) {
+        console.log("windowDestroyed", quickSurface)
     }
+
+    function subWindowDestroyed(quickSurface) {
+        console.log("subWindowDestroyed", quickSurface)
+    }
+
+    function removeWindow(container) {
+        console.log("windowRemoved", container)
+        container.surfaceItem.destroy()
+        container.destroy()
+    }
+
+    Connections {
+        target: compositor
+        onSubWindowAdded: subWindowAdded(quickSurface)
+        onWindowResized: windowResized(quickSurface)
+        onWindowDestroyed: windowDestroyed(quickSurface)
+        onSubWindowDestroyed: subWindowDestroyed(quickSurface)
+    }
+
+    Connections {
+        target: view
+        onWindowAdded: windowAdded(quickSurface, isXwaylandWindow)
+    }
+
+    onOrientationChanged: view.setOrientation(orientation)
 }
 

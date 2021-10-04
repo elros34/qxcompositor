@@ -38,8 +38,9 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.6
 import Sailfish.Silica 1.0
+import QXCompositor 1.0
 import "pages"
 
 ApplicationWindow {
@@ -48,10 +49,12 @@ ApplicationWindow {
     initialPage: Component { FirstPage {}}
     cover: undefined
     allowedOrientations: {
-        if (screenOrientationOption === "landscape")
+        if (compositor.screenOrientationOption === "portrait")
+            return (Orientation.Portrait | Orientation.PortraitInverted) & defaultAllowedOrientations
+        else if (compositor.screenOrientationOption === "landscape")
             return (Orientation.Landscape | Orientation.LandscapeInverted) & defaultAllowedOrientations
         else
-            return (Orientation.Portrait | Orientation.PortraitInverted) & defaultAllowedOrientations
+            return defaultAllowedOrientations
     }
     _defaultPageOrientations: allowedOrientations
     
