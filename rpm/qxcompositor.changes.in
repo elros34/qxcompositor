@@ -8,6 +8,11 @@
 # * date Author's Name <author's email> version-release
 # - Summary of changes
 
+* Thu Aug 19 2022 kabouik
+- Updated description and license for Chum repository
+- Bumped version to avoid dep resolution issues
+- Segregated packages so that devices < 4.2.0 with qtwayland-5.4 can still install qxcompositor before it was refactored to qtwayland-5.6 
+
 * Sun Apr 13 2014 Jack Tar <jack.tar@example.com> 0.0.4-1
 - Synchronize clipboard
 
