@@ -46,15 +46,16 @@
 QmlCompositor::QmlCompositor(QQuickView *quickView, const char *socketName,
                              const QString &screenOrientationOption)
     : QObject(quickView)
-    , QWaylandQuickCompositor(quickView, socketName, DefaultExtensions | SubSurfaceExtension)
+    , QWaylandQuickCompositor(socketName, DefaultExtensions | SubSurfaceExtension)
     , m_fullscreenSurface(nullptr)
 {
-    QSize size = window()->size();
+    QSize size = quickView->size();
     if (screenOrientationOption == "landscape")
         setSize(size.height(), size.width());
     else
         setSize(size.width(), size.height());
     addDefaultShell();
+    createOutput(quickView, "", "");
 }
 
 QWaylandQuickSurface *QmlCompositor::fullscreenSurface() const
