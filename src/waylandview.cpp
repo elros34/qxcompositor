@@ -112,6 +112,7 @@ void WaylandView::prepareView()
     rootContext()->setContextProperty("compositor", m_qmlCompositor);
     rootContext()->setContextProperty("view", this);
     setSource(SailfishApp::pathTo("qml/qxcompositor.qml"));
+    // Required here to prevent some Ambience related transparency issues
     setColor(Qt::black);
 }
 
